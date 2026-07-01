@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 15
+      max-parallel: 5
       matrix:
         # Warframes to collect data from the Warframe Market website. Add or remove Warframes as needed.
         warframe: [ash, atlas, banshee, baruuk, caliban, chroma, ember, equinox, excalibur, frost, gara, garuda, gauss, grendel, gyre, harrow, hildryn, hydroid, inaros, ivara, khora, lavos, limbo, loki, mag, mesa, mirage, nekros, nezha, nidus, nova, nyx, oberon, octavia, protea, revenant, rhino, saryn, sevagoth, styanax, titania, trinity, valkyr, vauban, volt, voruna, wisp, wukong, xaku, yareli, zephyr]
@@ -20,12 +20,40 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
 
-      - name: Install Playwright
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-py313-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Show cache state
         run: |
-          pip install playwright
-          playwright install chromium --with-deps
+          echo "Playwright cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}"
+          python -m pip --version
+          if [ -d "$HOME/.cache/ms-playwright" ]; then
+            echo "Playwright cache directory exists"
+            ls "$HOME/.cache/ms-playwright" | head
+          else
+            echo "Playwright cache directory missing"
+          fi
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m playwright install --with-deps chromium
 
       - name: Run data collection for ${{ matrix.warframe }}
         run: python extract-wfm.py ${{ matrix.warframe }}
