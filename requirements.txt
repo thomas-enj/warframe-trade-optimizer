@@ -1,0 +1,5 @@
+# Post-installation requirement:
+# After running pip install, download the required browser binaries using:
+# playwright install chromium
+
+playwright==1.49.0
