@@ -1,18 +1,38 @@
 import json
+import sys
 import time
 from playwright.sync_api import sync_playwright
 
-# Standardized site slugs for reliable data fetching
-ITEMS_SLUGS = {
-    "Yareli Prime Full Set": "yareli_prime_set",
-    "Yareli Prime Blueprint": "yareli_prime_blueprint",
-    "Yareli Prime Chassis": "yareli_prime_chassis_blueprint",
-    "Yareli Prime Neuroptics": "yareli_prime_neuroptics_blueprint",
-    "Yareli Prime Systems": "yareli_prime_systems_blueprint"
-}
+# Read the requested Warframe from the command line and normalize it for later use.
+if len(sys.argv) < 2:
+    print("Error : Specify a Warframe (e.g., yareli)")
+    sys.exit(1)
+
+wf_name = sys.argv[1].lower().strip()
+wf_capitalized = wf_name.capitalize()
+
+
+def normalize_warframe_name(wf_arg):
+    wf_name = wf_arg.lower().strip()
+    wf_capitalized = wf_name.capitalize()
+    return wf_name, wf_capitalized
+
+
+def build_items_slugs(wf_name, wf_capitalized=None):
+    if wf_capitalized is None:
+        wf_name, wf_capitalized = normalize_warframe_name(wf_name)
+
+    return {
+        f"{wf_capitalized} Prime Full Set": f"{wf_name}_prime_set",
+        f"{wf_capitalized} Prime Blueprint": f"{wf_name}_prime_blueprint",
+        f"{wf_capitalized} Prime Chassis": f"{wf_name}_prime_chassis_blueprint",
+        f"{wf_capitalized} Prime Neuroptics": f"{wf_name}_prime_neuroptics_blueprint",
+        f"{wf_capitalized} Prime Systems": f"{wf_name}_prime_systems_blueprint",
+    }
 
 
 def get_market_data():
+    items_slugs = build_items_slugs(wf_name, wf_capitalized)
     results = {}
 
     with sync_playwright() as p:
@@ -26,15 +46,15 @@ def get_market_data():
         )
         page = context.new_page()
 
-        print("Connecting to the Warframe Market interface...")
+        print(f"Connecting to the Warframe Market interface for {wf_capitalized}...")
         try:
-            url = "https://warframe.market/items/yareli_prime_set"
+            url = f"https://warframe.market/items/{wf_name}_prime_set"
             page.goto(url, wait_until="networkidle")
             time.sleep(2)
         except Exception as e:
             print(f"Initialization error : {e}")
 
-        for name, slug in ITEMS_SLUGS.items():
+        for name, slug in items_slugs.items():
             print(f"Extraction and filtering for : {name}...")
 
             # Retrieve the v2 ID using the slug, then load the orders
@@ -117,7 +137,7 @@ def get_market_data():
         browser.close()
 
     print("\n" + "="*50)
-    print("YARELI PRIME PRICE REPORT")
+    print(f"{wf_capitalized.upper()} PRIME PRICE REPORT")
     print("="*50)
     print(json.dumps(results, indent=2, ensure_ascii=False))
 
