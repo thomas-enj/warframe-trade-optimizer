@@ -42,7 +42,9 @@ def get_market_data():
             (async () => {{
                 try {{
                     // 1. Find the v2 ID corresponding to the object's slug
-                    const itemRes = await fetch("https://api.warframe.market/v2/items/{slug}");
+                    const itemRes = await fetch(
+                        "https://api.warframe.market/v2/items/{slug}"
+                    );
                     const itemJson = await itemRes.json();
                     if (!itemJson || !itemJson.data || !itemJson.data.id) {{
                         return {{
@@ -52,7 +54,11 @@ def get_market_data():
                     const itemId = itemJson.data.id;
 
                     // 2. Retrieve the orders with the correct ID
-                    const res = await fetch("https://api.warframe.market/v2/orders/item/" + itemId + "?limit=15000");
+                    const ordersUrl =
+                        "https://api.warframe.market/v2/orders/item/" +
+                        itemId +
+                        "?limit=15000";
+                    const res = await fetch(ordersUrl);
                     const json = await res.json();
 
                     if (!json || !json.data) {{
@@ -61,10 +67,10 @@ def get_market_data():
                         }};
                     }}
 
-                    const validOrders = json.data.filter(o => 
-                        o.type === "sell" && 
+                    const validOrders = json.data.filter(o =>
+                        o.type === "sell" &&
                         o.user &&
-                        o.user.platform === "pc" && 
+                        o.user.platform === "pc" &&
                         o.user.status === "ingame"
                     );
 
