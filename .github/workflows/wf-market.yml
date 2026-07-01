@@ -1,0 +1,31 @@
+name: Collect Warframe Market Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  collect-primes:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 15
+      matrix:
+        # Warframes to collect data from the Warframe Market website. Add or remove Warframes as needed.
+        warframe: [ash, atlas, banshee, baruuk, caliban, chroma, ember, equinox, excalibur, frost, gara, garuda, gauss, grendel, gyre, harrow, hildryn, hydroid, inaros, ivara, khora, lavos, limbo, loki, mag, mesa, mirage, nekros, nezha, nidus, nova, nyx, oberon, octavia, protea, revenant, rhino, saryn, sevagoth, styanax, titania, trinity, valkyr, vauban, volt, voruna, wisp, wukong, xaku, yareli, zephyr]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Run data collection for ${{ matrix.warframe }}
+        run: python fetch_prime.py ${{ matrix.warframe }}
