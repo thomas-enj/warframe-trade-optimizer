@@ -3,7 +3,8 @@ import sys
 import time
 from playwright.sync_api import sync_playwright
 
-# Read the requested Warframe from the command line and normalize it for later use.
+# Read the requested Warframe from the command line and normalize it
+# for later use.
 if len(sys.argv) < 2:
     print("Error : Specify a Warframe (e.g., yareli)")
     sys.exit(1)
