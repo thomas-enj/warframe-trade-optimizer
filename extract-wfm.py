@@ -23,11 +23,16 @@ def build_items_slugs(wf_name, wf_capitalized=None):
         wf_name, wf_capitalized = normalize_warframe_name(wf_name)
 
     return {
-        f"{wf_capitalized} Prime Full Set": f"{wf_name}_prime_set",
-        f"{wf_capitalized} Prime Blueprint": f"{wf_name}_prime_blueprint",
-        f"{wf_capitalized} Prime Chassis": f"{wf_name}_prime_chassis_blueprint",
-        f"{wf_capitalized} Prime Neuroptics": f"{wf_name}_prime_neuroptics_blueprint",
-        f"{wf_capitalized} Prime Systems": f"{wf_name}_prime_systems_blueprint",
+        f"{wf_capitalized} Prime Full Set":
+            f"{wf_name}_prime_set",
+        f"{wf_capitalized} Prime Blueprint":
+            f"{wf_name}_prime_blueprint",
+        f"{wf_capitalized} Prime Chassis":
+            f"{wf_name}_prime_chassis_blueprint",
+        f"{wf_capitalized} Prime Neuroptics":
+            f"{wf_name}_prime_neuroptics_blueprint",
+        f"{wf_capitalized} Prime Systems":
+            f"{wf_name}_prime_systems_blueprint",
     }
 
 
@@ -46,7 +51,10 @@ def get_market_data():
         )
         page = context.new_page()
 
-        print(f"Connecting to the Warframe Market interface for {wf_capitalized}...")
+        print(
+            f"Connecting to the Warframe Market interface for "
+            f"{wf_capitalized}..."
+        )
         try:
             url = f"https://warframe.market/items/{wf_name}_prime_set"
             page.goto(url, wait_until="networkidle")
