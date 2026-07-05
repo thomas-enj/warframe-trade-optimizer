@@ -20,7 +20,9 @@ def send_discord_notification():
                 continue
 
     valid_results = [r for r in all_results if r.get("margin", 0) > 0]
-    sorted_results = sorted(valid_results, key=lambda x: x["margin"], reverse=True)
+    sorted_results = sorted(
+        valid_results, key=lambda x: x["margin"], reverse=True
+    )
     top_5 = sorted_results[:5]
 
     if not top_5:
@@ -48,18 +50,23 @@ def send_discord_notification():
             item = details.get(item_key, {})
             whisper = item.get('whisper', '')
             if whisper:
-                # Discord syntax for a spoiler containing code block: || `text` ||
-                return f"|| `{whisper}` ||" if spoiler else f"`{whisper}`"
-            return "|| `Message unavailable` ||" if spoiler else "`Message unavailable`"
+                # Discord syntax: || `text` ||
+                msg = f"|| `{whisper}` ||" if spoiler else f"`{whisper}`"
+                return msg
+            unavail = "|| `Message unavailable` ||"
+            return unavail if spoiler else "`Message unavailable`"
 
         # Constructing text blocks
-        set_whisper = get_whisper(f"{wf_name} Prime Full Set", spoiler=(action_type == "buy_parts"))
+        set_spoiler = action_type == "buy_parts"
+        set_whisper = get_whisper(f"{wf_name} Prime Full Set",
+                                  spoiler=set_spoiler)
 
+        parts_spoiler = action_type == "buy_set"
         parts_whispers = (
-            f"{get_whisper(f'{wf_name} Prime Blueprint', spoiler=(action_type == 'buy_set'))}\n"
-            f"{get_whisper(f'{wf_name} Prime Chassis', spoiler=(action_type == 'buy_set'))}\n"
-            f"{get_whisper(f'{wf_name} Prime Neuroptics', spoiler=(action_type == 'buy_set'))}\n"
-            f"{get_whisper(f'{wf_name} Prime Systems', spoiler=(action_type == 'buy_set'))}"
+            f"{get_whisper(f'{wf_name} Prime Blueprint', spoiler=parts_spoiler)}"
+            f"\n{get_whisper(f'{wf_name} Prime Chassis', spoiler=parts_spoiler)}"
+            f"\n{get_whisper(f'{wf_name} Prime Neuroptics', spoiler=parts_spoiler)}"
+            f"\n{get_whisper(f'{wf_name} Prime Systems', spoiler=parts_spoiler)}"
         )
 
         # Base fields of the Embed
@@ -77,10 +84,14 @@ def send_discord_notification():
             {
                 "name": "Parts Details",
                 "value": (
-                    f"**BP:** {get_link_and_player(f'{wf_name} Prime Blueprint')}\n"
-                    f"**Chassis:** {get_link_and_player(f'{wf_name} Prime Chassis')}\n"
-                    f"**Neuro:** {get_link_and_player(f'{wf_name} Prime Neuroptics')}\n"
-                    f"**Systems:** {get_link_and_player(f'{wf_name} Prime Systems')}"
+                    f"**BP:** "
+                    f"{get_link_and_player(f'{wf_name} Prime Blueprint')}\n"
+                    f"**Chassis:** "
+                    f"{get_link_and_player(f'{wf_name} Prime Chassis')}\n"
+                    f"**Neuro:** "
+                    f"{get_link_and_player(f'{wf_name} Prime Neuroptics')}\n"
+                    f"**Systems:** "
+                    f"{get_link_and_player(f'{wf_name} Prime Systems')}"
                 ),
                 "inline": False
             }
@@ -98,7 +109,7 @@ def send_discord_notification():
                 "value": set_whisper,
                 "inline": False
             })
-        else: # action_type == "buy_set"
+        else:  # action_type == "buy_set"
             fields.append({
                 "name": "✅ MAIN ACTION: Buy Full Set (Copy to clipboard)",
                 "value": set_whisper,
@@ -113,7 +124,10 @@ def send_discord_notification():
         embed = {
             "title": f"#{i+1} - {wf_name} Prime",
             "color": colors[i] if i < len(colors) else 0x00FF00,
-            "description": f"**Recommendation:** {data['action']}\n**Margin:** {data['margin']} pl",
+            "description": (
+                f"**Recommendation:** {data['action']}\n"
+                f"**Margin:** {data['margin']} pl"
+            ),
             "fields": fields
         }
         embeds.append(embed)
