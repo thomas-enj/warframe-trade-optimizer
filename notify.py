@@ -123,7 +123,7 @@ def send_discord_notification():
         "embeds": embeds
     }
 
-    response = requests.post(webhook_url, json=payload)
+    response = requests.post(webhook_url, json=payload, timeout=10)
     if response.status_code == 204:
         print("Notification successfully sent to Discord!")
     else:
