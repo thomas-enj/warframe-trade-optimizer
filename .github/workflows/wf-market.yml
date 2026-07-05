@@ -2,6 +2,11 @@ name: Collect Warframe Market Data
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+    - cron: '0 12 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 20 * * *'
 
 jobs:
   collect-primes:
