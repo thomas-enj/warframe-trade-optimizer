@@ -100,23 +100,23 @@ def send_discord_notification():
         # Sorting and displaying logic based on the most profitable action
         if action_type == "buy_parts":
             fields.append({
-                "name": "✅ MAIN ACTION: Buy Parts (Copy to clipboard)",
+                "name": "✅ MAIN ACTION: Buy Parts",
                 "value": parts_whispers,
                 "inline": False
             })
             fields.append({
-                "name": "🔄 Alternative: Buy Full Set (Spoiler)",
+                "name": "🔄 Alternative: Buy Full Set",
                 "value": set_whisper,
                 "inline": False
             })
         else:  # action_type == "buy_set"
             fields.append({
-                "name": "✅ MAIN ACTION: Buy Full Set (Copy to clipboard)",
+                "name": "✅ MAIN ACTION: Buy Full Set",
                 "value": set_whisper,
                 "inline": False
             })
             fields.append({
-                "name": "🔄 Alternative: Buy Parts (Spoiler)",
+                "name": "🔄 Alternative: Buy Parts",
                 "value": parts_whispers,
                 "inline": False
             })
