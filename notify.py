@@ -4,6 +4,25 @@ import os
 import requests
 
 
+def format_margin_line(margin, margin_percentage):
+    percentage_text = f"{margin_percentage:.1f}%"
+
+    if margin_percentage >= 40:
+        percentage_text = f"\u001b[0;35m{percentage_text}\u001b[0m"
+    elif margin_percentage >= 30:
+        percentage_text = f"\u001b[0;31m{percentage_text}\u001b[0m"
+    elif margin_percentage >= 25:
+        percentage_text = f"\u001b[0;33m{percentage_text}\u001b[0m"
+    elif margin_percentage >= 20:
+        percentage_text = f"\u001b[0;32m{percentage_text}\u001b[0m"
+
+    return (
+        "```ansi\n"
+        f"Margin: {margin} pl ({percentage_text})\n"
+        "```"
+    )
+
+
 def send_discord_notification():
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
@@ -130,8 +149,7 @@ def send_discord_notification():
             "color": colors[i] if i < len(colors) else 0x00FF00,
             "description": (
                 f"**Recommendation:** {data['action']}\n"
-                f"**Margin:** {data['margin']} pl "
-                f"({margin_percentage:.1f}%)"
+                f"{format_margin_line(data['margin'], margin_percentage)}"
             ),
             "fields": fields
         }
