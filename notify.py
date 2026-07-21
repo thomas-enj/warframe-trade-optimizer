@@ -4,25 +4,6 @@ import os
 import requests
 
 
-def format_margin_line(margin, margin_percentage):
-    percentage_text = f"{margin_percentage:.1f}%"
-
-    if margin_percentage >= 40:
-        percentage_text = f"\u001b[0;35m{percentage_text}\u001b[0m"
-    elif margin_percentage >= 30:
-        percentage_text = f"\u001b[0;31m{percentage_text}\u001b[0m"
-    elif margin_percentage >= 25:
-        percentage_text = f"\u001b[0;33m{percentage_text}\u001b[0m"
-    elif margin_percentage >= 20:
-        percentage_text = f"\u001b[0;32m{percentage_text}\u001b[0m"
-
-    return (
-        "```ansi\n"
-        f"Margin: {margin} pl ({percentage_text})\n"
-        "```"
-    )
-
-
 def send_discord_notification():
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
@@ -59,6 +40,17 @@ def send_discord_notification():
         margin_percentage = (
             (data["margin"] / highest_cost) * 100 if highest_cost else 0
         )
+
+        if margin_percentage >= 40:
+            margin_indicator = "🟣 "
+        elif margin_percentage >= 30:
+            margin_indicator = "🔴 "
+        elif margin_percentage >= 25:
+            margin_indicator = "🟠 "
+        elif margin_percentage >= 20:
+            margin_indicator = "🟢 "
+        else:
+            margin_indicator = ""
 
         # Helper: Link and Player Name
         def get_link_and_player(item_key):
@@ -149,7 +141,8 @@ def send_discord_notification():
             "color": colors[i] if i < len(colors) else 0x00FF00,
             "description": (
                 f"**Recommendation:** {data['action']}\n"
-                f"{format_margin_line(data['margin'], margin_percentage)}"
+                f"**Margin:** {data['margin']} pl "
+                f"({margin_indicator}{margin_percentage:.1f}%)"
             ),
             "fields": fields
         }
