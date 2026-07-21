@@ -36,6 +36,21 @@ def send_discord_notification():
         wf_name = data["warframe"]
         details = data["details"]
         action_type = data.get("action_type", "unknown")
+        highest_cost = max(data.get("set_price", 0), data.get("parts_sum", 0))
+        margin_percentage = (
+            (data["margin"] / highest_cost) * 100 if highest_cost else 0
+        )
+
+        if margin_percentage >= 40:
+            margin_indicator = "🟣 "
+        elif margin_percentage >= 30:
+            margin_indicator = "🔴 "
+        elif margin_percentage >= 25:
+            margin_indicator = "🟠 "
+        elif margin_percentage >= 20:
+            margin_indicator = "🟢 "
+        else:
+            margin_indicator = ""
 
         # Helper: Link and Player Name
         def get_link_and_player(item_key):
@@ -126,7 +141,8 @@ def send_discord_notification():
             "color": colors[i] if i < len(colors) else 0x00FF00,
             "description": (
                 f"**Recommendation:** {data['action']}\n"
-                f"**Margin:** {data['margin']} pl"
+                f"**Margin:** {data['margin']} pl "
+                f"({margin_indicator}{margin_percentage:.1f}%)"
             ),
             "fields": fields
         }
