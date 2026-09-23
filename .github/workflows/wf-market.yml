@@ -16,7 +16,7 @@ jobs:
       max-parallel: 15
       matrix:
         # Warframes to collect data from the Warframe Market website. Add or remove Warframes as needed.
-        warframe: [ash, atlas, banshee, baruuk, caliban, chroma, ember, equinox, excalibur, frost, gara, garuda, gauss, grendel, gyre, harrow, hildryn, hydroid, inaros, ivara, khora, lavos, limbo, loki, mag, mesa, mirage, nekros, nezha, nidus, nova, nyx, oberon, octavia, protea, revenant, rhino, saryn, sevagoth, styanax, titania, trinity, valkyr, vauban, volt, voruna, wisp, wukong, xaku, yareli, zephyr]
+        warframe: [ash, atlas, banshee, baruuk, caliban, citrine, chroma, ember, equinox, excalibur, frost, gara, garuda, gauss, grendel, gyre, harrow, hildryn, hydroid, inaros, ivara, khora, lavos, limbo, loki, mag, mesa, mirage, nekros, nezha, nidus, nova, nyx, oberon, octavia, protea, revenant, rhino, saryn, sevagoth, styanax, titania, trinity, valkyr, vauban, volt, voruna, wisp, wukong, xaku, yareli, zephyr]
 
     steps:
       - name: Checkout code
