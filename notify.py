@@ -1,6 +1,7 @@
-import json
 import glob
+import json
 import os
+
 import requests
 
 
@@ -53,7 +54,7 @@ def send_discord_notification():
             margin_indicator = ""
 
         # Helper: Link and Player Name
-        def get_link_and_player(item_key):
+        def get_link_and_player(item_key, details=details):
             item = details.get(item_key, {})
             price = item.get('price', 'N/A')
             url = item.get('url', 'https://warframe.market')
@@ -61,7 +62,7 @@ def send_discord_notification():
             return f"[{price} pl]({url}) (👤 {player})"
 
         # Helper: Formatted message (with or without spoiler)
-        def get_whisper(item_key, spoiler=False):
+        def get_whisper(item_key, spoiler=False, details=details):
             item = details.get(item_key, {})
             whisper = item.get('whisper', '')
             if whisper:
