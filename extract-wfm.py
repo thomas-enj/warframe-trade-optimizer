@@ -1,6 +1,8 @@
 import json
 import sys
 import time
+
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import sync_playwright
 
 # Read the requested Warframe from the command line and normalize it
@@ -64,7 +66,7 @@ def get_market_data():
             url = f"https://warframe.market/items/{wf_name}_prime_set"
             page.goto(url, wait_until="networkidle")
             time.sleep(2)
-        except Exception as e:
+        except PlaywrightError as e:
             print(f"Initialization error : {e}")
 
         for name, slug in items_slugs.items():
@@ -142,8 +144,8 @@ def get_market_data():
                         "whisper": whisper_text
                     }
 
-            except Exception as e:
-                results[name] = {"error": f"Error : {str(e)}"}
+            except PlaywrightError as e:
+                results[name] = {"error": f"Error : {e!s}"}
 
             time.sleep(1.5)  # Spam Protection
 
