@@ -1,9 +1,16 @@
 import json
+import os
 import sys
 import time
 
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
+
+# Cloudflare blocks headless browsers almost systematically, so the browser
+# runs headful by default (under xvfb-run on GitHub Actions).
+HEADLESS = os.environ.get("HEADLESS", "false").lower() in ("1", "true", "yes")
+CLOUDFLARE_TIMEOUT_S = 30
 
 # Read the requested Warframe from the command line and normalize it
 # for later use.
@@ -42,20 +49,29 @@ def build_items_slugs(wf_name, wf_capitalized=None):
     }
 
 
+# Wait until the Cloudflare "Just a moment..." challenge page is gone
+def wait_for_cloudflare(page, timeout_s=CLOUDFLARE_TIMEOUT_S):
+    deadline = time.monotonic() + timeout_s
+    while time.monotonic() < deadline:
+        title = page.title().lower()
+        if "just a moment" not in title and "un instant" not in title:
+            return True
+        time.sleep(1)
+    print("Warning : Cloudflare challenge still present after timeout")
+    return False
+
+
 # Main function to extract market data for the specified Warframe
 def get_market_data():
     items_slugs = build_items_slugs(wf_name, wf_capitalized)
     results = {}
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
-            )
-        )
+    # Stealth patches every page (webdriver flag, user agent, plugins...).
+    # No hard-coded user agent: a fake Chrome version that does not match
+    # the real browser is itself a bot signal.
+    with Stealth().use_sync(sync_playwright()) as p:
+        browser = p.chromium.launch(headless=HEADLESS)
+        context = browser.new_context()
         page = context.new_page()
 
         print(
@@ -63,9 +79,13 @@ def get_market_data():
             f"{wf_capitalized}..."
         )
         try:
-            url = f"https://warframe.market/items/{wf_name}_prime_set"
-            page.goto(url, wait_until="networkidle")
+            # The HTML site (warframe.market) is behind a Cloudflare
+            # challenge, but the API host is not: opening the API origin
+            # makes the fetch() calls below same-origin and unchallenged.
+            url = f"https://api.warframe.market/v2/items/{wf_name}_prime_set"
+            page.goto(url, wait_until="domcontentloaded")
             time.sleep(2)
+            wait_for_cloudflare(page)
         except PlaywrightError as e:
             print(f"Initialization error : {e}")
 
